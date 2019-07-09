@@ -1,0 +1,13 @@
+! input file for analysis of warp distribution
+#00 READ ASTRA FILE -- analysis
+action=processor
+	task=read
+		extr_part_1=True
+		sort_len=True
+		E_ref=0
+		in_file=./nanoholetest.finalphsp
+		format=warp
+	task=write
+                z0=-6
+                out_file=./warp.ini 
+                format=astra

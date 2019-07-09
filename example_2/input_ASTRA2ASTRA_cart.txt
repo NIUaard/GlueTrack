@@ -1,0 +1,24 @@
+! input file for analysis of ASTRA distribution
+#00 READ ASTRA FILE -- analysis
+action=processor
+	task=read
+		extr_part_1=True
+		sort_len=True
+		E_ref=0
+		in_file=./gun_to_X3.0377.001
+		format=astra
+        task=matching
+                interv=[-0.1, 0.1]
+                xpar=[0, 1, 1e-9]
+                ypar=[0, 1, 1e-9]
+        task=multibeam_cart
+                pitchx=0
+                pitchy=0
+                pitchx_p=1e-3 
+                pitchy_p=1e-3
+                numx=5
+                numy=5
+	task=write
+                z0=3.77
+                out_file=./test_hex.dat
+                format=astra

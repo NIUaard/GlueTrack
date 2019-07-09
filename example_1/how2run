@@ -1,0 +1,14 @@
+# set the PYTHONPATH to add the GlueTrack directory
+in the tcsh shell use:
+setenv PYTHONPATH /contrib/beams/BeamTools/GlueTrack/Sept2015:PYTHONPATH
+in the bash
+export PYTHONPATH=$PYTHONPATH:/contrib/beams/BeamTools/GlueTrack/Sept2015
+
+
+# then just type
+
+python mainS2E_specifyTXT.py inputAPLCTRslits.txt
+
+        ^^^^^^^^^^^^^        ^^^^^^^^^^^^^^^^^^^^^
+   this is the gluetrack          this is the input
+         script                   file (w. actions)

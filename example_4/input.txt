@@ -1,0 +1,246 @@
+! input file for Start-to-End simulation for TTF2
+#00 ASTRA -> CSRtrack
+action=processor
+	task=read
+		sort_len=True
+		in_file=N0_input/ttf2.1359.001
+		format=astra
+	task=add_wake
+		wake_delta=0
+		m_interv=[-0.005, 0.005]
+		sigmaI=0.0001
+		wake=wake0
+	task=center
+		centerxs=True
+		interv=[-0.002, 0.002]
+		centerys=True
+		centerx=True
+		centery=True
+	task=matching
+		interv=[-0.002, 0.002]
+		xpar=[4.619, 20.174,1.0]
+		ypar=[-0.012, 2.809,1.0]
+	task=write
+		out_file=N1_bc1/in/bc1_in.fmt1
+		format=fmt1
+
+#01 BC1 (CSRtrack)
+action=CSRtrack
+        task=run
+		work_dir=N1_bc1
+		command=src_11 !DOS
+		!command=./src_11 !ferrari
+		!command=rsh,ferraris0,./S2E/N1_bc1/src_11
+	
+#02 CSRTrack  -> ASTRA
+action=processor
+	task=read
+		in_file=N1_bc1/out/bc1_out.fmt1
+		format=fmt1
+	task=center
+		centerz=True
+	task=define_ref_part
+	task=drift
+		length=-1
+	task=write
+		z0=24.854
+		out_file=N2_bc_to_bc/bc1_out.ini
+		format=astra
+
+#03 BC1 to BC2 (ASTRA)
+action=ASTRA
+        task=run
+                !command=rsh,ferraris0,"cd,S2E/N2_bc_to_bc; mpirun, -np, 20, ./astra, bc_to_bc100.in"
+		!command=mpirun, -np, 20, ./astra, bc_to_bc100.in
+		command=astra, bc_to_bc100.in
+		work_dir=N2_bc_to_bc
+	task=run
+                !command=rsh,ferraris0,"cd,S2E/N2_bc_to_bc; mpirun, -np, 20, ./astra, bc_to_bc300.in"
+		!command=mpirun, -np, 20, ./astra, bc_to_bc300.in
+		command=astra, bc_to_bc300.in
+		work_dir=N2_bc_to_bc
+
+#04 Mix
+action=processor
+	task=read
+		extr_part_1=True
+		format=astra
+		E_ref=380000000.0
+		in_file2=N2_bc_to_bc/bc_to_bc100.0067.001
+		in_file=N2_bc_to_bc/bc_to_bc300.0067.001
+	task=mix
+		axlim=[0.0005, 0.00075, -0.01, -0.006]
+		z1=0.00064
+		z2=0.00069
+		zs1=-0.0084
+	task=write
+		out_file=N2_bc_to_bc/bc_to_bc_mix.fmt1
+		format=fmt1
+
+#05 ASTRA -> CSRtrack
+action=processor
+	task=read
+		E_ref=380000000.0
+		in_file=N2_bc_to_bc/bc_to_bc_mix.fmt1
+		format=fmt1
+	task=add_wake
+		wake_delta=0
+		m_interv=[-0.00075, 0.001]
+		sigmaI=3e-006
+		wake=wake1
+	task=center
+		centerxs=True
+		interv=[-0.0005, 0.0005]
+		centerys=True
+		centerx=True
+		centery=True
+	task=write
+		out_file=N3_bc2/in/bc2_in.fmt1
+		format=fmt1
+
+#06 BC2 (CSRtrack)
+action=CSRtrack
+	task=run
+		work_dir=N3_bc2
+		command=src_11
+		!command=./src_11
+		!command=rsh,ferraris0,./S2E/N3_bc2/src_11
+
+#07 CSRTrack  -> ASTRA
+action=processor
+	task=read
+		E_ref=380000000.0
+		in_file=N3_bc2/out/bc2_out.fmt1
+		format=fmt1
+	task=center
+		centerz=True
+	task=extract_slice_centr
+		sigmaI=1e-006
+		interv=[0, 0.0007]
+		M=20000
+	task=define_ref_part
+	task=drift
+		length=-1
+	task=matching
+		interv=[0.000385, 0.00039]
+		xpar=[-0.286, 6.716,0]
+		ypar=[-0.799, 6.56,0]
+	task=write
+		z0=81.355
+		out_file=N4_bc_to_col/bc2_out.ini
+		format=astra
+
+#08 BC2 to collimator (ASTRA)
+action=ASTRA
+	task=run
+                !command=rsh,ferraris0,"cd,S2E/N4_bc_to_col; mpirun, -np, 20, ./astra, bc_to_col.in"
+                !command=mpirun, -np, 20, ./astra, bc_to_col.in
+                command=astra, bc_to_col.in
+		work_dir=N4_bc_to_col
+                
+#09 ASTRA -> CSRtrack
+action=processor
+	task=read
+		extr_part_1=True
+		E_ref=450000000.0
+		in_file=N4_bc_to_col/bc_to_col.0152.001
+		format=astra
+	task=drift_to
+		z0=152.1884
+	task=add_wake
+		wake_delta=-32085561497.3
+		m_interv=[-0.0005, 0.0005]
+		sigmaI=3e-006
+		wake=wake2
+	task=center
+		centerxs=True
+		interv=[0.000385, 0.00039]
+		centerys=True
+		centerx=True
+		centery=True
+	task=drift
+		length=0.1
+	task=matching
+		interv=[0.000385, 0.00039]
+		xpar=[1.432, 1.404,0]
+		ypar=[7.475, 16.853,0]
+	task=drift
+		length=-0.1
+	task=write
+		out_file=N5_dogleg/in/dogleg_in.fmt1
+		format=fmt1
+
+#10 dogleg (CSRtrack)
+action=CSRtrack
+	task=run
+		work_dir=N5_dogleg
+		!command=rsh,ferraris0,./S2E/N5_dogleg/src_11
+		command=src_11
+
+#11 CSRTrack  -> ASTRA
+action=processor
+	task=read
+		E_ref=453500000.0
+		in_file=N5_dogleg/out/dogleg_out.fmt1
+		format=fmt1
+	task=center
+		centerz=True
+		centerx=True
+	task=extract_slice_centr
+		sigmaI=5e-007
+		interv=[0, 0.00067]
+		M=20000
+	task=define_ref_part
+	task=drift
+		length=-1
+	task=write
+		z0=159.3203
+		out_file=N6_dog_to_undu/dogleg_out.ini
+		format=astra
+
+#12 dogleg to undulator (ASTRA)
+action=ASTRA
+	task=run
+                !command=rsh,ferraris0,"cd,S2E/N6_dog_to_undu; mpirun, -np, 20, ./astra, dog_to_undu.in"
+        	!command=mpirun, -np, 20, ./astra, dog_to_undu.in
+        	command=astra, dog_to_undu.in
+		work_dir=N6_dog_to_undu
+
+#13 Analysis
+action=analysis
+	task=read
+		extr_part_1=True
+		sort_len=True
+		E_ref=450000000.0
+		in_file=N6_dog_to_undu/dog_to_undu.0205.001
+		format=astra
+        task=slice_analysis
+                M_av=2500
+        task=m_current
+                xlim=[0.35,0.45]
+                sigmaI=5e-007
+        task=m_emmitance
+                xlim=[0.35,0.45]
+        task=m_momentum
+                xlim=[0.35,0.45]
+        task=m_rms_momentum
+                xlim=[0.35,0.45]
+        task=m_hor_offset
+                xlim=[0.35,0.45]
+        task=m_hor_slope
+                xlim=[0.35,0.45]
+        task=m_Twissx
+                xlim=[0.35,0.45]
+	  task=m_Twissy
+                xlim=[0.35,0.45] 
+	  task=m_topview
+                xlim=[0.35,0.45]
+        !task=write
+		!E_ref=0
+		!out_file=d:/case1.txt
+		!format=genesis
+		!interv=[-0.5e-4,0.5e-4]
+		!beta=[41.32,27.62]
+		!nstep=20
+            
+

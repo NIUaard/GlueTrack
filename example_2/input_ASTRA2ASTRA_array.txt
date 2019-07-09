@@ -1,0 +1,18 @@
+! input file for analysis of ASTRA distribution
+#00 READ ASTRA FILE -- analysis
+action=processor
+	task=read
+		extr_part_1=True
+		sort_len=True
+		E_ref=0
+		in_file=./gun_to_X3.0377.001
+		format=astra
+        task=multibeam_cart
+                pitchx=2e-3
+                pitchy=2e-3
+                numx=3
+                numy=3
+	task=write
+                z0=3.77
+                out_file=./GlueTrack_must.dat
+                format=astra

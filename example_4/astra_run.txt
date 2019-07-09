@@ -1,0 +1,35 @@
+! input file for AC adjustment
+#00 Analysis before
+action=analysis
+        task=read
+                extr_part_1=True
+                sort_len=True
+                E_ref=0
+                in_file=N0_input/ttf2.1359.001
+                format=astra
+        task=slice_analysis
+                M_av=2500
+        task=m_momentum
+                !xlim=[0.35,0.45]
+        
+#01 AC adjustment
+action=ASTRA
+        task=adjust_acceleration
+                in_file=N0_input/ttf2.1359.001
+                out_file=N0_input/ttf2.1359.002
+                V0_phi0_V1_phi1_omega=[61.2e6, 0, 61.2e6, 30, 1.3e9]
+                !omega in Hz, phi in grad, V in Volt
+
+#02 Analysis after
+action=analysis
+        task=read
+                extr_part_1=True
+                sort_len=True
+                E_ref=0
+                in_file=N0_input/ttf2.1359.002
+                format=astra
+        task=slice_analysis
+                M_av=2500
+        task=m_momentum
+                !xlim=[0.35,0.45]
+        
